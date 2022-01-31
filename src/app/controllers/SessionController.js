@@ -1,6 +1,8 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User';
 
+require('dotenv/config');
+
 class SessionController {
     async store(req, res) {
         const { email, password } = req.body;
@@ -25,8 +27,8 @@ class SessionController {
                 username,
                 email,
             },
-            token: jwt.sign({ id }, '16be10699a99b19be5bf5f028f183831', {
-                expiresIn: '7d',
+            token: jwt.sign({ id }, process.env.JWT_SECRET, {
+                expiresIn: process.env.JWT_EXPIRES,
             }),
         });
     }
