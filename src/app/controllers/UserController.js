@@ -5,9 +5,9 @@ class UserController {
         const regexEmail =
             /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 
-        const { username, email, password_hash } = req.body;
+        const { username, email, password } = req.body;
 
-        if (!username || !email || !password_hash) {
+        if (!username || !email || !password) {
             return res.status(400).json({ error: 'Missing fields' });
         }
 
@@ -25,7 +25,7 @@ class UserController {
             const user = await User.create({
                 username,
                 email,
-                password_hash,
+                password,
             });
 
             return res.json({
