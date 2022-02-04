@@ -1,4 +1,9 @@
 module.exports = {
+    dialect: 'postgres',
+    host: 'localhost',
+    username: 'postgres',
+    password: '1234',
+    database: 'api_tasklist',
     define: {
         timestamps: true,
         underscored: true,
