@@ -10,7 +10,9 @@ class TaskController {
 
             return res.json(tasks);
         } catch (error) {
-            return res.status(400).json({ error: 'Error to get not concluded tasks' });
+            return res
+                .status(400)
+                .json({ error: 'Error to get not concluded tasks' });
         }
     }
 
@@ -84,6 +86,10 @@ class TaskController {
 
         const taskExists = await Task.findByPk(id);
 
+        if (!taskExists) {
+            return res.status(400).json({ error: 'Task not exists' });
+        }
+
         try {
             const taskUpdated = await taskExists.update(req.body);
 
@@ -103,6 +109,14 @@ class TaskController {
 
         if (!taskExists) {
             return res.status(400).json({ error: 'Task not exists' });
+        }
+
+        if (taskExists.user_id !== req.userId) {
+            return res
+                .status(401)
+                .json({
+                    error: 'You dont have permission to delete this task',
+                });
         }
 
         try {
