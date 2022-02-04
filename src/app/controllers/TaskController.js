@@ -2,15 +2,15 @@ import Task from '../models/Task';
 import * as Yup from 'yup';
 
 class TaskController {
-    async index(req, res) {
+    async getNotConcluded(req, res) {
         try {
             const tasks = await Task.findAll({
-                where: { user_id: req.userId },
+                where: { user_id: req.userId, check: false },
             });
 
             return res.json(tasks);
         } catch (error) {
-            return res.status(400).json({ error: 'Error to get tasks' });
+            return res.status(400).json({ error: 'Error to get not concluded tasks' });
         }
     }
 
@@ -25,6 +25,18 @@ class TaskController {
             return res
                 .status(400)
                 .json({ error: 'Error to get concluded tasks' });
+        }
+    }
+
+    async index(req, res) {
+        try {
+            const tasks = await Task.findAll({
+                where: { user_id: req.userId },
+            });
+
+            return res.json(tasks);
+        } catch (error) {
+            return res.status(400).json({ error: 'Error to get tasks' });
         }
     }
 
@@ -60,37 +72,45 @@ class TaskController {
 
     async update(req, res) {
         const schema = Yup.object().shape({
-            task: Yup.string().required().min(4),
+            task: Yup.string().min(4),
+            check: Yup.boolean(),
         });
 
         if (!(await schema.isValid(req.body))) {
             return res.status(400).json({ error: 'Validation fails' });
         }
 
-        const { task, id } = req.body;
+        const { id } = req.params;
 
         const taskExists = await Task.findByPk(id);
 
-        const taskNameExists = await Task.findOne({
-            where: { task },
-        });
-
-        if (taskNameExists) {
-            return res.status(400).json({ error: 'Task already exists' });
-        }
-        
         try {
-            const taskUpdated = await taskExists.update({
-                task,
-            });
+            const taskUpdated = await taskExists.update(req.body);
 
             return res.json({
                 message: 'Task updated successfully',
                 taskUpdated,
             });
         } catch (error) {
-            console.log(error);
             return res.status(400).json({ error: 'Error to update task' });
+        }
+    }
+
+    async delete(req, res) {
+        const { id } = req.params;
+
+        const taskExists = await Task.findByPk(id);
+
+        if (!taskExists) {
+            return res.status(400).json({ error: 'Task not exists' });
+        }
+
+        try {
+            await taskExists.destroy();
+
+            return res.json({ message: 'Task deleted successfully' });
+        } catch (error) {
+            return res.status(400).json({ error: 'Error to delete task' });
         }
     }
 }
